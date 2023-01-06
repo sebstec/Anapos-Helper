@@ -55,12 +55,15 @@ def get_curr_screen_geometry():
 
 
 """Settings"""
-brute_x_max = 0.01  #0.25
-brute_y_max = 0.01  #0.25
-brute_angle_max = 0.01  #0.03
-brute_height_max = 0.01  #0.15
+brute_x_max = 0.10  #0.25
+brute_y_max = 0.10  #0.25
+brute_angle_max = 0.03  #0.03
+brute_height_max = 0.10  #0.15
 brute_deviation_increment = 0.01  #0.01
 #3s each Increment
+
+ 
+
 level_threshold_top = 120
 level_threshold_bottom = 60
 increase_height_diff_threshold_button = "Button2"
@@ -2093,7 +2096,7 @@ def bruteEverything(app,
                          1) * (brute_height_max *
                                (1 / brute_deviation_increment) * 2 + 1)
 
-    print("Brute_Everything_total: ", total)
+    print("Brute_Everything_total_pos: ", total, "Time (days): ", total * 3 / 60 / 60 / 24)
     print("Brute_Everything_file: ", file)
 
     intvar.set(total)
