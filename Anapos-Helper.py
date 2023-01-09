@@ -50,7 +50,6 @@ def get_curr_screen_geometry():
     #geometry_sx = root.winfo_screenwidth()
     #geometry_sy = root.winfo_screenheight()
     root.destroy()
-    #print(geometry, geometry_x, geometry_y, geometry_sx, geometry_sy)
     return geometry_x, geometry_y
 
 
@@ -61,8 +60,6 @@ brute_angle_max = 0.03  #0.03
 brute_height_max = 0.10  #0.15
 brute_deviation_increment = 0.01  #0.01
 #3s each Increment
-
- 
 
 level_threshold_top = 120
 level_threshold_bottom = 60
@@ -109,55 +106,9 @@ window_geometry = "{0}x{1}+{2}+{3}".format(window_size["width"],
                                            window_size["height"],
                                            window_pos["posx"],
                                            window_pos["posy"])
+"""global variables"""
+chooseImage_flag = True
 """Functions"""
-"""unused for now"""
-"""
-def testXAllIncrements(app, max_num_increments, best_mean):
-    deviation_increment = 1        
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "x", sign = "up")
-    time.sleep(1)
-    print("testing x-direction with increment: " + str(deviation_increment) + ": up done - best_mean: " + str(best_mean))
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "x", sign = "down")
-    print("testing x-direction with increment: " + str(deviation_increment) + ": down done - best_mean: " + str(best_mean))
-    time.sleep(1)
-    deviation_increment = 0.10
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "x", sign = "up")
-    time.sleep(1)
-    print("testing x-direction with increment: " + str(deviation_increment) + ": up done - best_mean: " + str(best_mean))
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "x", sign = "down")
-    print("testing x-direction with increment: " + str(deviation_increment) + ": down done - best_mean: " + str(best_mean))
-    time.sleep(1)
-    deviation_increment = 0.01
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "x", sign = "up")
-    time.sleep(1)
-    print("testing x-direction with increment: " + str(deviation_increment) + ": up done - best_mean: " + str(best_mean))
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "x", sign = "down")
-    print("testing x-direction with increment: " + str(deviation_increment) + ": down done - best_mean: " + str(best_mean))
-    return best_mean
-
-def testYAllIncrements(app, max_num_increments, best_mean):
-    deviation_increment = 1       
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "y", sign = "up")
-    time.sleep(1)
-    print("testing y-direction with increment: " + str(deviation_increment) + ": up done - best_mean: " + str(best_mean))
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "y", sign = "down")
-    print("testing y-direction with increment: " + str(deviation_increment) + ": down done - best_mean: " + str(best_mean))
-    time.sleep(1)
-    deviation_increment = 0.10
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "y", sign = "up")
-    time.sleep(1)
-    print("testing y-direction with increment: " + str(deviation_increment) + ": up done - best_mean: " + str(best_mean))
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "y", sign = "down")
-    print("testing y-direction with increment: " + str(deviation_increment) + ": down done - best_mean: " + str(best_mean))
-    time.sleep(1)
-    deviation_increment = 0.01
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "y", sign = "up")
-    time.sleep(1)
-    print("testing y-direction with increment: " + str(deviation_increment) + ": up done - best_mean: " + str(best_mean))
-    best_mean = testInOneDirection(app, deviation_increment, max_num_increments, best_mean, direction = "y", sign = "down")
-    print("testing y-direction with increment: " + str(deviation_increment) + ": down done - best_mean: " + str(best_mean))
-    return best_mean
-"""
 
 
 def adjustDifferenceView(current_level, app, ground_image, mask_image):
@@ -179,21 +130,13 @@ def adjustDifferenceView(current_level, app, ground_image, mask_image):
 
 
 def getCurrentLevel(ground_image, mask_image, show_image=False):
-    #ss = ImageGrab.grab()
-    #ss = ss.crop(crop)
-    #current_stats = ImageStat.Stat(ss).mean
-    #current_level = abs(current_stats[1] - 254) + abs(current_stats[0] - 254) + abs(current_stats[2] - 255)
-    #print(current_stats, current_level)
     ss = grabAndCropSS()
     final_image = makeFinalImage(ss, ground_image, mask_image)
     current_stats = ImageStat.Stat(final_image).mean
     current_level = (abs(current_stats[1] - 254) +
                      abs(current_stats[0] - 254) + abs(current_stats[2] - 255))
-    #print(current_stats, current_level)
     if show_image:
-        # get a drawing context
         d = ImageDraw.Draw(final_image)
-        # draw multiline text
         d.multiline_text((10,
                           10),
                          "level:\n{0}".format(current_level),
@@ -204,8 +147,6 @@ def getCurrentLevel(ground_image, mask_image, show_image=False):
     return current_level
 
 
-#TODO: rework/cleanup testInOneDirection(/Angle/Height)
-#TODO: get current x,y,angle,height once and then keep them in memory so its not neccessary to chekc them every iteration
 def testInOneDirection(app,
                        ground_image,
                        mask_image,
@@ -215,73 +156,85 @@ def testInOneDirection(app,
                        direction,
                        sign):
     current_level = getCurrentLevel(ground_image, mask_image)
+
     if (direction == "x"):
         app[manual_adjust_dialog_title][
-            x_direction_shift_input].double_click_input(
-            )  #detail verschub X input
+            x_direction_shift_input].double_click_input()
     elif (direction == "y"):
         app[manual_adjust_dialog_title][
-            y_direction_shift_input].double_click_input(
-            )  #detail verschub Y input
+            y_direction_shift_input].double_click_input()
+    elif (direction == "angle"):
+        app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
+    elif (direction == "height"):
+        app[manual_adjust_dialog_title][height_shift_input].double_click_input(
+        )
+
     pyautogui.hotkey('ctrl', 'a')
     pyautogui.hotkey('ctrl', 'c')
     root = tk.Tk()
-    root.withdraw()  # keep the window from showing
+    root.withdraw()
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
     while (current_level <= best_mean and max_num_increments >= 0):
-        #print("heere cl:" +str(current_level) + " bm: "+str(best_mean) + "cdevx: " +str(current_deviation))
         current_level = adjustDifferenceView(current_level,
                                              app,
                                              ground_image,
                                              mask_image)
         best_mean = current_level
         max_num_increments -= 1
+
         if (sign == "up"):
             current_deviation = current_deviation + deviation_increment
         elif (sign == "down"):
             current_deviation = current_deviation - deviation_increment
+
         current_deviation = round(current_deviation, 2)
         current_deviation_string = str(current_deviation).replace(".", ",")
+
         if (direction == "x"):
             app[manual_adjust_dialog_title][
-                x_direction_shift_input].double_click_input(
-                )  #detail verschub X input
+                x_direction_shift_input].double_click_input()
         elif (direction == "y"):
             app[manual_adjust_dialog_title][
-                y_direction_shift_input].double_click_input(
-                )  #detail verschub Y input
+                y_direction_shift_input].double_click_input()
+        elif (direction == "angle"):
+            app[manual_adjust_dialog_title][
+                angle_shift_input].double_click_input()
+        elif (direction == "height"):
+            app[manual_adjust_dialog_title][
+                height_shift_input].double_click_input()
+
         pyautogui.hotkey('ctrl', 'a')
         time.sleep(0.1)  #TODO: improve
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
-        #current_level = getCurrentLevel(crop)
         while (current_level == best_mean):
-            #print("too slow")
             time.sleep(0.01)
             current_level = getCurrentLevel(ground_image, mask_image)
-        #print(str(current_deviation) + " in while")
-    #print("there")
     if (sign == "up"):
         current_deviation = current_deviation - deviation_increment
     elif (sign == "down"):
         current_deviation = current_deviation + deviation_increment
+
     current_deviation = round(current_deviation, 2)
-    #print(current_deviation)
     current_deviation_string = str(current_deviation).replace(".", ",")
+
     if (direction == "x"):
         app[manual_adjust_dialog_title][
-            x_direction_shift_input].double_click_input(
-            )  #detail verschub X input
+            x_direction_shift_input].double_click_input()
     elif (direction == "y"):
         app[manual_adjust_dialog_title][
-            y_direction_shift_input].double_click_input(
-            )  #detail verschub Y input
+            y_direction_shift_input].double_click_input()
+    elif (direction == "angle"):
+        app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
+    elif (direction == "height"):
+        app[manual_adjust_dialog_title][height_shift_input].double_click_input(
+        )
+
     pyautogui.hotkey('ctrl', 'a')
     pyautogui.write(current_deviation_string)
     pyautogui.press('enter')
     while (current_level != best_mean):
-        #print("too slow")
         time.sleep(0.01)
         current_level = getCurrentLevel(ground_image, mask_image)
     return current_level
@@ -306,25 +259,7 @@ def testInOneDirectionBrute(app,
                             angle,
                             height):
     current_level = getCurrentLevel(ground_image, mask_image)
-    """
-    if (direction == "x"):
-        app[manual_adjust_dialog_title][
-            x_direction_shift_input].double_click_input()
-    elif (direction == "y"):
-        app[manual_adjust_dialog_title][
-            y_direction_shift_input].double_click_input()
-    elif (direction == "angle"):
-        app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
-    elif (direction == "height"):
-        app[manual_adjust_dialog_title][height_shift_input].double_click_input(
-        )
-    pyautogui.hotkey('ctrl', 'a')
-    pyautogui.hotkey('ctrl', 'c')
-    root = tk.Tk()
-    root.withdraw()
-    current_deviation_string = root.clipboard_get()
-    current_deviation = float(current_deviation_string.replace(",", "."))
-    """
+
     if (direction == "x"):
         current_deviation = x
     elif (direction == "y"):
@@ -441,7 +376,6 @@ def moveToStartPos(app,
                    y=True,
                    angle=True,
                    height=True):
-
     if x:
         app[manual_adjust_dialog_title][
             x_direction_shift_input].double_click_input()
@@ -485,126 +419,7 @@ def moveToStartPos(app,
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
 
-
-#TODO: merge with testInOneDirection
-def testInOneDirectionAngle(app,
-                            ground_image,
-                            mask_image,
-                            deviation_increment,
-                            max_num_increments,
-                            best_mean,
-                            sign):
-    current_level = getCurrentLevel(ground_image, mask_image)
-    app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
-    pyautogui.hotkey('ctrl', 'a')
-    pyautogui.hotkey('ctrl', 'c')
-    root = tk.Tk()
-    root.withdraw()  # keep the window from showing
-    current_deviation_string = root.clipboard_get()
-    current_deviation = float(current_deviation_string.replace(",", "."))
-    while (current_level <= best_mean and max_num_increments >= 0):
-        #print("heere cl:" +str(current_level) + " bm: "+str(best_mean) + "cdevx: " +str(current_deviation))
-        current_level = adjustDifferenceView(current_level,
-                                             app,
-                                             ground_image,
-                                             mask_image)
-        best_mean = current_level
-        max_num_increments -= 1
-        if (sign == "up"):
-            current_deviation = current_deviation + deviation_increment
-        elif (sign == "down"):
-            current_deviation = current_deviation - deviation_increment
-        current_deviation = round(current_deviation, 2)
-        current_deviation_string = str(current_deviation).replace(".", ",")
-        app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
-        pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
-        pyautogui.write(current_deviation_string)
-        pyautogui.press('enter')
-        #current_level = getCurrentLevel(crop)
-        while (current_level == best_mean):
-            #print("too slow")
-            time.sleep(0.01)
-            current_level = getCurrentLevel(ground_image, mask_image)
-        #print(str(current_deviation) + " in while")
-    #print("there")
-    if (sign == "up"):
-        current_deviation = current_deviation - deviation_increment
-    elif (sign == "down"):
-        current_deviation = current_deviation + deviation_increment
-    current_deviation = round(current_deviation, 2)
-    #print(current_deviation)
-    current_deviation_string = str(current_deviation).replace(".", ",")
-    app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
-    pyautogui.hotkey('ctrl', 'a')
-    pyautogui.write(current_deviation_string)
-    pyautogui.press('enter')
-    while (current_level != best_mean):
-        #print("too slow")
-        time.sleep(0.01)
-        current_level = getCurrentLevel(ground_image, mask_image)
-    return current_level
-
-
-#TODO: merge with testInOneDirection
-def testInOneDirectionHeight(app,
-                             ground_image,
-                             mask_image,
-                             deviation_increment,
-                             max_num_increments,
-                             best_mean,
-                             sign):
-    current_level = getCurrentLevel(ground_image, mask_image)
-    app[manual_adjust_dialog_title][height_shift_input].double_click_input()
-    pyautogui.hotkey('ctrl', 'a')
-    pyautogui.hotkey('ctrl', 'c')
-    root = tk.Tk()
-    root.withdraw()  # keep the window from showing
-    current_deviation_string = root.clipboard_get()
-    current_deviation = float(current_deviation_string.replace(",", "."))
-    while (current_level <= best_mean and max_num_increments >= 0):
-        #print("heere cl:" +str(current_level) + " bm: "+str(best_mean) + "cdevx: " +str(current_deviation))
-        current_level = adjustDifferenceView(current_level,
-                                             app,
-                                             ground_image,
-                                             mask_image)
-        best_mean = current_level
-        max_num_increments -= 1
-        if (sign == "up"):
-            current_deviation = current_deviation + deviation_increment
-        elif (sign == "down"):
-            current_deviation = current_deviation - deviation_increment
-        current_deviation = round(current_deviation, 2)
-        current_deviation_string = str(current_deviation).replace(".", ",")
-        app[manual_adjust_dialog_title][height_shift_input].double_click_input(
-        )
-        pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
-        pyautogui.write(current_deviation_string)
-        pyautogui.press('enter')
-        #current_level = getCurrentLevel(crop)
-        while (current_level == best_mean):
-            #print("too slow")
-            time.sleep(0.01)
-            current_level = getCurrentLevel(ground_image, mask_image)
-        #print(str(current_deviation) + " in while")
-    #print("there")
-    if (sign == "up"):
-        current_deviation = current_deviation - deviation_increment
-    elif (sign == "down"):
-        current_deviation = current_deviation + deviation_increment
-    current_deviation = round(current_deviation, 2)
-    #print(current_deviation)
-    current_deviation_string = str(current_deviation).replace(".", ",")
-    app[manual_adjust_dialog_title][height_shift_input].double_click_input()
-    pyautogui.hotkey('ctrl', 'a')
-    pyautogui.write(current_deviation_string)
-    pyautogui.press('enter')
-    while (current_level != best_mean):
-        #print("too slow")
-        time.sleep(0.01)
-        current_level = getCurrentLevel(ground_image, mask_image)
-    return current_level
+    return
 
 
 def testIncrement(app,
@@ -621,8 +436,6 @@ def testIncrement(app,
                                    best_mean,
                                    direction="x",
                                    sign="up")
-    #print("testing x-direction with increment: " + str(increment) +
-    #          ": up done - best_mean: " + str(best_mean))
     best_mean = testInOneDirection(app,
                                    ground_image,
                                    mask_image,
@@ -631,8 +444,6 @@ def testIncrement(app,
                                    best_mean,
                                    direction="x",
                                    sign="down")
-    #print("testing x-direction with increment: " + str(increment) +
-    #          ": down done - best_mean: " + str(best_mean))
     best_mean = testInOneDirection(app,
                                    ground_image,
                                    mask_image,
@@ -641,8 +452,6 @@ def testIncrement(app,
                                    best_mean,
                                    direction="y",
                                    sign="up")
-    #print("testing y-direction with increment: " + str(increment) +
-    #          ": up done - best_mean: " + str(best_mean))
     best_mean = testInOneDirection(app,
                                    ground_image,
                                    mask_image,
@@ -651,8 +460,7 @@ def testIncrement(app,
                                    best_mean,
                                    direction="y",
                                    sign="down")
-    #print("testing y-direction with increment: " + str(increment) +
-    #          ": down done - best_mean: " + str(best_mean))
+
     return best_mean
 
 
@@ -662,20 +470,22 @@ def testAngle(app,
               max_num_increments,
               best_mean,
               increment):
-    best_mean = testInOneDirectionAngle(app,
-                                        ground_image,
-                                        mask_image,
-                                        increment,
-                                        max_num_increments,
-                                        best_mean,
-                                        sign="up")
-    best_mean = testInOneDirectionAngle(app,
-                                        ground_image,
-                                        mask_image,
-                                        increment,
-                                        max_num_increments,
-                                        best_mean,
-                                        sign="down")
+    best_mean = testInOneDirection(app,
+                                   ground_image,
+                                   mask_image,
+                                   increment,
+                                   max_num_increments,
+                                   best_mean,
+                                   direction="angle",
+                                   sign="up")
+    best_mean = testInOneDirection(app,
+                                   ground_image,
+                                   mask_image,
+                                   increment,
+                                   max_num_increments,
+                                   best_mean,
+                                   direction="angle",
+                                   sign="down")
     return best_mean
 
 
@@ -685,20 +495,22 @@ def testHeight(app,
                max_num_increments,
                best_mean,
                increment):
-    best_mean = testInOneDirectionHeight(app,
-                                         ground_image,
-                                         mask_image,
-                                         increment,
-                                         max_num_increments,
-                                         best_mean,
-                                         sign="up")
-    best_mean = testInOneDirectionHeight(app,
-                                         ground_image,
-                                         mask_image,
-                                         increment,
-                                         max_num_increments,
-                                         best_mean,
-                                         sign="down")
+    best_mean = testInOneDirection(app,
+                                   ground_image,
+                                   mask_image,
+                                   increment,
+                                   max_num_increments,
+                                   best_mean,
+                                   direction="height",
+                                   sign="up")
+    best_mean = testInOneDirection(app,
+                                   ground_image,
+                                   mask_image,
+                                   increment,
+                                   max_num_increments,
+                                   best_mean,
+                                   direction="height",
+                                   sign="down")
     return best_mean
 
 
@@ -765,21 +577,6 @@ def setUpAppConnection(title_regex):
     return app
 
 
-"""
-def setUpHeightDiff(app):
-    app[app_title_regex].set_focus()
-    if not app[app_title_regex][height_diff_settings_button].is_enabled():
-        app[app_title_regex][height_diff_show_button].click()
-        while not app[app_title_regex][height_diff_settings_button].is_enabled():
-            time.sleep(0.1)
-    app[app_title_regex][height_diff_settings_button].click_input()
-    app[height_diff_dialog_title][height_diff_settings_scheme_colorpalette].click() 
-    app[height_diff_dialog_title][height_diff_settings_ok_button].click() 
-    app[height_diff_dialog_title].wait_not("visible")
-    return
-"""
-
-
 def setUpHeightDiff(app, gray=False):
     app[app_title_regex].set_focus()
     if not app[app_title_regex][height_diff_settings_button].is_enabled():
@@ -843,59 +640,8 @@ def captureImageViewandFloodfillDarkAreas(app, floodfill=True):
     return ss
 
 
-"""
-def findStartEndPixels_old(image):
-    ss_width = image.size[0]
-    print("imwidth ", ss_width)
-    nparrayimg = np.array(image.getdata())
-    pixel_begin = ss_width - 1
-    pixel_end = nparrayimg[(nparrayimg.size // 3) - 1]
-    print("nparraysize", nparrayimg.size)
-    print("pixelend_A", pixel_end)
-    i = 0
-    for p in nparrayimg:
-        if pixel_begin == ss_width - 1 and (p[0] != 0 or p[1] != 0 or p[2] != 0):
-            if(i % ss_width < pixel_begin % ss_width):
-                pixel_begin = i
-        if p[0] != 0 and p[1] != 0 and p[2] != 0:
-            pixel_end = i
-        i = i + 1
-
-    print("pixel_begin_num: ", pixel_begin)
-    print("pixel_end_num: ", pixel_end)
-    image.show()
-    pixel_begin_row_firstpixelnum = 0
-
-    for y in range(0, (nparrayimg.size // 3), ss_width):
-        if y > (pixel_begin - ss_width):
-            pixel_begin_row_firstpixelnum = y
-            print(pixel_begin_row_firstpixelnum)
-            break
-
-    pixel_begin_y = pixel_begin_row_firstpixelnum // ss_width
-    pixel_begin_x = pixel_begin - pixel_begin_row_firstpixelnum
-    print("pixelbegin", pixel_begin_x, pixel_begin_y)
-
-    pixel_end_row_firstpixelnum = 0
-
-    for y in range(0, (nparrayimg.size // 3), ss_width):
-        if y > (pixel_end - ss_width):
-            pixel_end_row_firstpixelnum = y
-            print(pixel_end_row_firstpixelnum)
-            break
-
-    pixel_end_y = pixel_end_row_firstpixelnum // ss_width
-    pixel_end_x = pixel_end - pixel_end_row_firstpixelnum
-    print("pixelend", pixel_end_x, pixel_end_y)
-    image.show()
-    return (pixel_begin_x, pixel_begin_y, pixel_end_x, pixel_end_y)
-"""
-
-
 def findStartEndPixels(image):
     ss_width = image.size[0]
-    ss_height = image.size[1]
-    #print("imwidth ", ss_width)
     nparrayimg = np.array(image.getdata())
     begin_pixels = []
     end_pixels = []
@@ -903,8 +649,6 @@ def findStartEndPixels(image):
     rowpostemppixel_x = ss_width
     rowpostemppixel_y = 0
     pixel_end = nparrayimg[(nparrayimg.size // 3) - 1]
-    #print("nparraysize", nparrayimg.size)
-    #print("pixelend_A", pixel_end)
     i = 0
     for p in nparrayimg:
         if (p[0] != 0 or p[1] != 0 or p[2] != 0):
@@ -926,22 +670,17 @@ def findStartEndPixels(image):
                 rowpostemppixel_y = pixel
 
         i = i + 1
-    #print(begin_pixels)
     pixel_begin_x = np.bincount(np.array(begin_pixels)).argmax()
     pixel_end_x = np.bincount(np.array(end_pixels)).argmax()
 
-    #print("test",  np.bincount(np.array([766,766,766,1,788,788,788])).argmax())
     print("pixel_begin_num: ", pixel_begin)
-    #print("pixel_begin_x", pixel_begin_x)
     print("pixel_end_num: ", pixel_end)
-    #print("pixel_end_x", pixel_end_x)
-    #image.show()
+
     pixel_begin_row_firstpixelnum = 0
 
     for y in range(0, (nparrayimg.size // 3), ss_width):
         if y > (pixel_begin - ss_width):
             pixel_begin_row_firstpixelnum = y
-            #print(pixel_begin_row_firstpixelnum)
             break
 
     pixel_begin_y = pixel_begin_row_firstpixelnum // ss_width
@@ -952,12 +691,10 @@ def findStartEndPixels(image):
     for y in range(0, (nparrayimg.size // 3), ss_width):
         if y > (pixel_end - ss_width):
             pixel_end_row_firstpixelnum = y
-            #print(pixel_end_row_firstpixelnum)
             break
 
     pixel_end_y = pixel_end_row_firstpixelnum // ss_width
     print("pixelend", pixel_end_x, pixel_end_y)
-    #image.show()
     return (pixel_begin_x, pixel_begin_y, pixel_end_x, pixel_end_y)
 
 
@@ -966,18 +703,9 @@ def createOverlayImage(flooded_image, start_end_pixels):
     pixel_begin_y = start_end_pixels[1]
     pixel_end_x = start_end_pixels[2]
     pixel_end_y = start_end_pixels[3]
-    #temp_image = Image.fromarray(a.astype(np.uint8).reshape(ss_height, ss_width, 3))
-    #print("flooded_image")
-    #flooded_image.show()
     crop = (pixel_begin_x, pixel_begin_y, pixel_end_x, pixel_end_y)
     temp_image = flooded_image.crop(crop)
-    #print("overlay_image", crop)
-    #temp_image.show()
     return temp_image
-    #temp_image.save("masker.png")       #TODO: error handling try catch
-
-
-chooseImage_flag = True
 
 
 def makeTkinterOverlayWindow(overlay_image, filepaths, mask_image):
@@ -1027,7 +755,6 @@ def makeTkinterOverlayWindow(overlay_image, filepaths, mask_image):
 
     def on_release(key):
         mouse = Controller()
-        #global image_contrast_float, image, filter_pre_enhance, remove_white, window_alpha
         if key == keyboard.Key.up:
             mouse.move(0, -1)
         if key == keyboard.Key.down:
@@ -1041,8 +768,6 @@ def makeTkinterOverlayWindow(overlay_image, filepaths, mask_image):
         if key == keyboard.Key.home:
             if coords != (0, 0):
                 mouse.position = (coords[0], coords[1])
-        #if key == keyboard.Key.insert:
-        #   on_click(mouse.position[0], mouse.position[1], None, False, True)
         if key == keyboard.Key.page_up:
             window_alpha = overlay_window.attributes("-alpha")
             window_alpha = window_alpha + 0.05
@@ -1073,7 +798,6 @@ def makeTkinterOverlayWindow(overlay_image, filepaths, mask_image):
     tk_image = ImageTk.PhotoImage(mask_image)
     image_container = canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
     showOverlayTipsDialog(overlay_window)
-    #print("canvas coords", canvas.coords(image_container))
     pyautogui.moveTo(1584,
                      500)  #TODO:get screen coords instead of hardcoded values
     overlay_window.mainloop()
@@ -1124,7 +848,6 @@ def showOverlayTipsDialog(root):
 def makeMaskfromSS(ss, start_end_pixels, filepaths):
     #TODO: Reihenfolge aendern, so ists ineffektiv / evtl. eine Lösung mit Image.point finden anstatt Konversion zu Array
     nparrayimg = np.array(ss.getdata())
-    #hier noch neu die neig funktion öffnen und die maske festlegen
     for r in nparrayimg:
         if r[0] == r[1] == r[2]:
             r[0] = 0
@@ -1144,13 +867,9 @@ def makeMaskfromSS(ss, start_end_pixels, filepaths):
                                             ss.size[0],
                                             3))
     mask_image = mask_image.crop(crop)
-    #print("maskimagepreconvert")
-    #mask_image.show()
     mask_image = mask_image.convert("L")
     if filepaths[1] and len(filepaths[1]) > 1:
         mask_image.save(filepaths[1])  #TODO: error handling try catch
-    #print("maskimageafterconvert")
-    #mask_image.show()
     return mask_image
 
 
@@ -1161,40 +880,26 @@ def makeGroundImage(mask_image):
                           dtype=np.uint8)
     nparrayimg.fill(254)
     nparrayimg[:, 2] = 255
-    #print(nparrayimg)
     ground_image = Image.fromarray(
         nparrayimg.reshape(mask_image.size[1],
                            mask_image.size[0],
                            3))
-    #ground_image = ground_image.crop(crop)
-    #print("groundimage")
-    #ground_image.show()
     return ground_image
 
 
 def grabAndCropSS():  #overlay_window_pos / overlay_window_size are global vars
     setUpAppConnection(app_title_regex)
     ss = ImageGrab.grab()
-    #print("fullss")
-    #ss.show()
     crop = (overlay_window_pos[0],
             overlay_window_pos[1],
             overlay_window_pos[0] + overlay_window_size[0],
             overlay_window_pos[1] + overlay_window_size[1])
     ss = ss.crop(crop)
-    #print("croppedss")
-    #ss.show()
     return ss
 
 
 def makeFinalImage(ss, ground_image, mask_image):
-    #print("sizes(ss-ground-mask")
-    #print(ss.size)
-    #print(ground_image.size)
-    #print(mask_image.size)
     ground_image.paste(ss, box=None, mask=mask_image)
-    #print("final_image")
-    #ground_image.show()
     return ground_image
 
 
@@ -1250,9 +955,9 @@ def showMarkAreaDialog():
     tk.Label(
         window,
         text=
-        "Jetzt den Bereich der Aufnahme auswaehlen,\nanhand dessen die Positionierung erfolgen soll",
+        "JETZT den Bereich der Aufnahme auswaehlen,\nanhand dessen die Positionierung erfolgen soll",
         anchor=tk.W,
-        bg="white").pack(**ipadding,
+        bg="red").pack(**ipadding,
                          fill=tk.X)
     tk.Label(window,
              text="Dazu die Keyence Funktionen verwenden",
@@ -1334,7 +1039,7 @@ def showOverlayAreaDialog():
     tk.Label(window,
              text="(Positionierung beginnt NACH dem Klick auf OK)",
              anchor=tk.W,
-             bg="white").pack(**ipadding,
+             bg="red").pack(**ipadding,
                               fill=tk.X)
     tk.Label(window,
              textvariable=file_path_load).pack(**ipadding,
@@ -1376,8 +1081,6 @@ def controlZoomvalue(app, title, image_view):
     control_pixel = (int(control_image.size[0] * 0.5),
                      int(control_image.size[1] * 0.05))
     control_pixel_color = control_image.getpixel(control_pixel)
-    #print(control_pixel)
-    #print(control_image.getpixel(control_pixel))
     if control_pixel_color[0] != control_pixel_color[1] or control_pixel_color[
             1] != control_pixel_color[2] or control_pixel_color[
                 0] > 80 or control_pixel_color[1] > 80 or control_pixel_color[
@@ -1453,10 +1156,7 @@ class DelayWindowThread(threading.Thread):
     # custom run function
     def run(self):
         self.ss_overlay = captureImageViewandFloodfillDarkAreas(self.app)
-        #print("ss_overlay")
-        #self.ss_overlay.show()
         self.start_end_pixels = findStartEndPixels(self.ss_overlay)
-        #print("startenndpixels", self.start_end_pixels)
         self.window.quit()
         self.window.update()
 
@@ -1481,8 +1181,6 @@ def showDelayWindow(app):
     thread.join()
     ss_overlay, start_end_pixels = thread.get()
     window.destroy()
-    #ss_overlay.show()
-    #print(start_end_pixels)
     return ss_overlay, start_end_pixels
 
 
@@ -1521,14 +1219,14 @@ def showWhichTestDialog():
 
     ipadding = {'ipadx': 10, 'ipady': 10, "padx": 0, "pady": 0}
     tk.Button(window,
-              text='nach naechstgelegenem Maximum suchen',
+              text='nach naechstgelegenem Minimum suchen',
               command=partial(returnOne,
                               r)).pack(**ipadding,
                                        fill=tk.X)
     tk.Button(
         window,
         text=
-        'nach absolutem Maximum in der Naehe suchen\n(Grenzwerte sind im Skript definiert)\n(dauert ca. 2 Tage)',
+        'nach absolutem Minimum in der Naehe suchen\n(Grenzwerte sind im Skript definiert)\n(dauert ca. 2 Tage)',
         command=partial(returnTwo,
                         r)).pack(**ipadding,
                                  fill=tk.X)
@@ -1548,14 +1246,11 @@ def showWhichTestDialog():
 
 def setUpAreaToCompare(app, zoom_value):
     app[app_title_regex][neig_settings_button].click()
-    #app = setUpAppConnection(neig_title_regex)
     app[neig_title_regex][zoom_combobox].select(zoom_value)
     app[neig_title_regex][height_diff_show_button].click()
     app[neig_title_regex][height_diff_show_button].click()
     app[neig_title_regex][neig_area_delete_button].click()
     ss_overlay, start_end_pixels = showDelayWindow(app)
-    #ss_overlay = captureImageViewandFloodfillDarkAreas(app)
-    #start_end_pixels = findStartEndPixels(ss_overlay)
     app[neig_title_regex][neig_area_recover_button].click()
     filepaths_image = showMarkAreaDialog()
     if filepaths_image[0] and len(filepaths_image[0]) > 1:
@@ -1742,7 +1437,7 @@ def bruteXY(app,
                        x=True,
                        y=False,
                        angle=False,
-                       height=False)              
+                       height=False)
         x = result["x_start"]
 
     moveToStartPos(app,
@@ -2096,7 +1791,10 @@ def bruteEverything(app,
                          1) * (brute_height_max *
                                (1 / brute_deviation_increment) * 2 + 1)
 
-    print("Brute_Everything_total_pos: ", total, "Time (days): ", total * 3 / 60 / 60 / 24)
+    print("Brute_Everything_total_pos: ",
+          total,
+          "Time (days): ",
+          total * 3 / 60 / 60 / 24)
     print("Brute_Everything_file: ", file)
 
     intvar.set(total)
@@ -2105,10 +1803,15 @@ def bruteEverything(app,
     result["best_levels"] = []
     result["best_levels_length"] = 1000
     result = getStartPos(app, result, ground_image, mask_image)
+    result["x_deviation"] = brute_x_max
+    result["y_deviation"] = brute_y_max
+    result["angle_deviation"] = brute_angle_max
+    result["height_deviation"] = brute_height_max
     x = result["x_start"]
     y = result["y_start"]
     angle = result["angle_start"]
     height = result["height_start"]
+
     print("start,max:",
           x,
           brute_x_max,
@@ -2118,11 +1821,6 @@ def bruteEverything(app,
           brute_angle_max,
           height,
           brute_height_max)
-
-    #x_max_temp = brute_x_max + x
-    #y_max_temp = brute_y_max + y
-    #angle_max_temp = brute_angle_max + angle
-    #height_max_temp = brute_height_max + height
 
     result = bruteHeightAngleAndXY(app,
                                    ground_image,
@@ -2204,14 +1902,18 @@ def showBruteDialog(app,
     return
 
 
+showStartingWindow()
 app = setUpAppConnection(app_title_regex)
-overlay_window_pos = (683, 290)
-overlay_window_size = (1797, 1366)
-ground_image = Image.open("ground.bmp")
-
-mask_image = Image.open("aa1.bmp")
-
+removeLines()
+zoom_value = setUpZoom(app, app_title_regex, manual_adjust_image_view)
+setUpManAdjust(app)
+images = setUpAreaToCompare(app, zoom_value)
+ground_image = images[0]
+mask_image = images[1]
+setUpHeightDiff(app)
+setUpManAdjust(app)
 test = showWhichTestDialog()
+
 if test[0] == 1:
     best_mean = testNextOptimum(app, ground_image, mask_image)
     getCurrentLevel(ground_image, mask_image, show_image=True)
@@ -2240,32 +1942,11 @@ elif test[0] == 3:
                         brute_height_max,
                         file)
 
-exit()
+"""
+weekendtest parameter (4k Screen):
 
-showStartingWindow()
-app = setUpAppConnection(app_title_regex)
-removeLines()
-zoom_value = setUpZoom(app, app_title_regex, manual_adjust_image_view)
-setUpManAdjust(app)
-images = setUpAreaToCompare(app, zoom_value)
-ground_image = images[0]
-mask_image = images[1]
-setUpHeightDiff(app)
-setUpManAdjust(app)
-test = showWhichTestDialog()
-if test == 1:
-    best_mean = testNextOptimum(app, ground_image, mask_image)
-    getCurrentLevel(ground_image, mask_image, show_image=True)
-elif test == 2:
-    with open("testfilejson.json", "w") as file:
-        showBruteDialog(app,
-                        ground_image,
-                        mask_image,
-                        brute_deviation_increment,
-                        brute_x_max,
-                        brute_y_max,
-                        brute_angle_max,
-                        brute_height_max,
-                        file)
-
-#25*25*4*6*30*0.5
+overlay_window_pos = (683, 290)
+overlay_window_size = (1797, 1366)
+ground_image = Image.open("ground.bmp")
+mask_image = Image.open("aa1.bmp")
+"""
