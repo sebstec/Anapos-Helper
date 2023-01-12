@@ -1168,13 +1168,12 @@ def showStartingWindow():
              anchor=tk.W,
              bg="white").pack(**ipadding,
                               fill=tk.X)
-    tk.Label(
-        window,
-        text="keine Maus-/Tastatureingabe ohne Aufforderung!",
-        anchor=tk.W,
-        bg="red").pack(**ipadding,
-                       fill=tk.X,
-                       expand=True)
+    tk.Label(window,
+             text="keine Maus-/Tastatureingabe ohne Aufforderung!",
+             anchor=tk.W,
+             bg="red").pack(**ipadding,
+                            fill=tk.X,
+                            expand=True)
     tk.Button(window, text='OK', command=end).pack(**ipadding, fill=tk.X)
     window.mainloop()
     return
