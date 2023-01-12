@@ -982,13 +982,11 @@ def showMarkAreaDialog():
         anchor=tk.W,
         bg="red").pack(**ipadding,
                        fill=tk.X)
-    tk.Label(
-        window,
-        text=
-        "der Zoom-Faktor darf nicht geändert werden!",
-        anchor=tk.W,
-        bg="red").pack(**ipadding,
-                       fill=tk.X)
+    tk.Label(window,
+             text="der Zoom-Faktor darf nicht geändert werden!",
+             anchor=tk.W,
+             bg="red").pack(**ipadding,
+                            fill=tk.X)
     tk.Label(window,
              text="Dazu die Keyence Funktionen verwenden",
              anchor=tk.W,
@@ -1170,6 +1168,13 @@ def showStartingWindow():
              anchor=tk.W,
              bg="white").pack(**ipadding,
                               fill=tk.X)
+    tk.Label(
+        window,
+        text="keine Maus-/Tastatureingabe ohne Aufforderung!",
+        anchor=tk.W,
+        bg="red").pack(**ipadding,
+                       fill=tk.X,
+                       expand=True)
     tk.Button(window, text='OK', command=end).pack(**ipadding, fill=tk.X)
     window.mainloop()
     return
@@ -1991,7 +1996,7 @@ setUpHeightDiff(app)
 setUpManAdjust(app)
 test = showWhichTestDialog()
 
-while(True):
+while (True):
     if test[0] == 1:
         best_mean = testNextOptimum(app, ground_image, mask_image)
         x, y, height, angle, fov = getCurrentCoordsAndFov(app)
@@ -2046,7 +2051,6 @@ while(True):
                         angle=angle,
                         fov=fov)
     test = showWhichTestDialog()
-
 """
 weekendtest parameter (4k Screen):
 
