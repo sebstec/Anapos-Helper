@@ -65,6 +65,7 @@ level_threshold_top = 120
 level_threshold_bottom = 60
 increase_height_diff_threshold_button = "Button2"
 decrease_height_diff_threshold_button = "Button3"
+height_diff_threshold_static = "Static0"
 x_direction_shift_input = "XWindowsForms10.Window.8.app.0.134c08f_r12_ad11"
 y_direction_shift_input = "YWindowsForms10.Window.8.app.0.134c08f_r12_ad11"
 app_title_regex = ".*Vergleichsbild.*"
@@ -129,7 +130,14 @@ def adjustDifferenceView(current_level, app, ground_image, mask_image):
     return current_level
 
 
-def getCurrentLevel(ground_image, mask_image, show_image=False):
+def getCurrentLevel(ground_image,
+                    mask_image,
+                    show_image=False,
+                    x=None,
+                    y=None,
+                    height=None,
+                    angle=None,
+                    fov=None):
     ss = grabAndCropSS()
     final_image = makeFinalImage(ss, ground_image, mask_image)
     current_stats = ImageStat.Stat(final_image).mean
@@ -137,12 +145,19 @@ def getCurrentLevel(ground_image, mask_image, show_image=False):
                      abs(current_stats[0] - 254) + abs(current_stats[2] - 255))
     if show_image:
         d = ImageDraw.Draw(final_image)
-        d.multiline_text((10,
-                          10),
-                         "level:\n{0}".format(current_level),
-                         fill=(0,
-                               0,
-                               0))
+        d.multiline_text(
+            (10,
+             10),
+            "level:\n{0}\nfov:\n{1}\nx:\n{2}\ny:\n{3}\nheight:\n{4}\nangle:\n{5}"
+            .format(current_level,
+                    fov,
+                    x,
+                    y,
+                    height,
+                    angle),
+            fill=(0,
+                  0,
+                  0))
         final_image.show()
     return current_level
 
@@ -170,6 +185,7 @@ def testInOneDirection(app,
         )
 
     pyautogui.hotkey('ctrl', 'a')
+    time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     root = tk.Tk()
     root.withdraw()
@@ -232,6 +248,7 @@ def testInOneDirection(app,
         )
 
     pyautogui.hotkey('ctrl', 'a')
+    time.sleep(0.1)  #TODO: improve
     pyautogui.write(current_deviation_string)
     pyautogui.press('enter')
     while (current_level != best_mean):
@@ -324,15 +341,13 @@ def testInOneDirectionBrute(app,
 
 
 def getStartPos(app, result, ground_image, mask_image):
-    pyautogui.hotkey('ctrl', 'a')
-    pyautogui.hotkey('ctrl', 'c')
     root = tk.Tk()
     root.withdraw()
 
     app[manual_adjust_dialog_title][
         x_direction_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)
+    time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -341,7 +356,7 @@ def getStartPos(app, result, ground_image, mask_image):
     app[manual_adjust_dialog_title][
         y_direction_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)
+    time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -349,7 +364,7 @@ def getStartPos(app, result, ground_image, mask_image):
 
     app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)
+    time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -357,7 +372,7 @@ def getStartPos(app, result, ground_image, mask_image):
 
     app[manual_adjust_dialog_title][height_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)
+    time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -518,6 +533,14 @@ def testNextOptimum(app, ground_image, mask_image):
     max_num_increments = 1000
     best_mean = 765
     best_mean_tmp_iter = 0
+
+    best_mean = testHeight(app,
+                           ground_image,
+                           mask_image,
+                           max_num_increments,
+                           best_mean,
+                           1)
+
     best_mean = testIncrement(app,
                               ground_image,
                               mask_image,
@@ -958,7 +981,7 @@ def showMarkAreaDialog():
         "JETZT den Bereich der Aufnahme auswaehlen,\nanhand dessen die Positionierung erfolgen soll",
         anchor=tk.W,
         bg="red").pack(**ipadding,
-                         fill=tk.X)
+                       fill=tk.X)
     tk.Label(window,
              text="Dazu die Keyence Funktionen verwenden",
              anchor=tk.W,
@@ -1040,7 +1063,7 @@ def showOverlayAreaDialog():
              text="(Positionierung beginnt NACH dem Klick auf OK)",
              anchor=tk.W,
              bg="red").pack(**ipadding,
-                              fill=tk.X)
+                            fill=tk.X)
     tk.Label(window,
              textvariable=file_path_load).pack(**ipadding,
                                                fill=tk.X,
@@ -1902,6 +1925,43 @@ def showBruteDialog(app,
     return
 
 
+def getCurrentCoordsAndFov(app):
+    root = tk.Tk()
+    root.withdraw()
+
+    fov = app[app_title_regex][height_diff_threshold_static].window_text()[1::]
+
+    app[manual_adjust_dialog_title][
+        x_direction_shift_input].double_click_input()
+    pyautogui.hotkey('ctrl', 'a')
+    time.sleep(0.1)  #TODO: improve
+    pyautogui.hotkey('ctrl', 'c')
+    x = root.clipboard_get()
+
+    app[manual_adjust_dialog_title][
+        y_direction_shift_input].double_click_input()
+    pyautogui.hotkey('ctrl', 'a')
+    time.sleep(0.1)  #TODO: improve
+    pyautogui.hotkey('ctrl', 'c')
+    y = root.clipboard_get()
+
+    app[manual_adjust_dialog_title][height_shift_input].double_click_input()
+    pyautogui.hotkey('ctrl', 'a')
+    time.sleep(0.1)  #TODO: improve
+    pyautogui.hotkey('ctrl', 'c')
+    height = root.clipboard_get()
+
+    app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
+    pyautogui.hotkey('ctrl', 'a')
+    time.sleep(0.1)  #TODO: improve
+    pyautogui.hotkey('ctrl', 'c')
+    angle = root.clipboard_get()
+
+    root.destroy()
+
+    return x, y, height, angle, fov
+
+
 showStartingWindow()
 app = setUpAppConnection(app_title_regex)
 removeLines()
@@ -1916,7 +1976,15 @@ test = showWhichTestDialog()
 
 if test[0] == 1:
     best_mean = testNextOptimum(app, ground_image, mask_image)
-    getCurrentLevel(ground_image, mask_image, show_image=True)
+    x, y, height, angle, fov = getCurrentCoordsAndFov(app)
+    getCurrentLevel(ground_image,
+                    mask_image,
+                    show_image=True,
+                    x=x,
+                    y=y,
+                    height=height,
+                    angle=angle,
+                    fov=fov)
 elif test[0] == 2:
     with open(test[1], "w") as file:
         showBruteDialog(app,
@@ -1930,7 +1998,15 @@ elif test[0] == 2:
                         file)
 elif test[0] == 3:
     best_mean = testNextOptimum(app, ground_image, mask_image)
-    getCurrentLevel(ground_image, mask_image, show_image=True)
+    x, y, height, angle, fov = getCurrentCoordsAndFov(app)
+    getCurrentLevel(ground_image,
+                    mask_image,
+                    show_image=True,
+                    x=x,
+                    y=y,
+                    height=height,
+                    angle=angle,
+                    fov=fov)
     with open(test[1], "w") as file:
         showBruteDialog(app,
                         ground_image,
@@ -1941,7 +2017,6 @@ elif test[0] == 3:
                         brute_angle_max,
                         brute_height_max,
                         file)
-
 """
 weekendtest parameter (4k Screen):
 
