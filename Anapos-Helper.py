@@ -982,6 +982,13 @@ def showMarkAreaDialog():
         anchor=tk.W,
         bg="red").pack(**ipadding,
                        fill=tk.X)
+    tk.Label(
+        window,
+        text=
+        "der Zoom-Faktor darf nicht geändert werden!",
+        anchor=tk.W,
+        bg="red").pack(**ipadding,
+                       fill=tk.X)
     tk.Label(window,
              text="Dazu die Keyence Funktionen verwenden",
              anchor=tk.W,
@@ -1237,8 +1244,13 @@ def showWhichTestDialog():
         r.append(file_path_save.get())
         window.destroy()
 
+    def returnFour(r):
+        r[0] = 4
+        window.destroy()
+
     def returnZero():
         window.destroy()
+        exit()
 
     ipadding = {'ipadx': 10, 'ipady': 10, "padx": 0, "pady": 0}
     tk.Button(window,
@@ -1259,7 +1271,12 @@ def showWhichTestDialog():
                               r)).pack(**ipadding,
                                        fill=tk.X)
     tk.Button(window,
-              text='Abbruch',
+              text='nur current level',
+              command=partial(returnFour,
+                              r)).pack(**ipadding,
+                                       fill=tk.X)
+    tk.Button(window,
+              text='Ende',
               command=returnZero).pack(**ipadding,
                                        fill=tk.X)
 
@@ -1974,49 +1991,62 @@ setUpHeightDiff(app)
 setUpManAdjust(app)
 test = showWhichTestDialog()
 
-if test[0] == 1:
-    best_mean = testNextOptimum(app, ground_image, mask_image)
-    x, y, height, angle, fov = getCurrentCoordsAndFov(app)
-    getCurrentLevel(ground_image,
-                    mask_image,
-                    show_image=True,
-                    x=x,
-                    y=y,
-                    height=height,
-                    angle=angle,
-                    fov=fov)
-elif test[0] == 2:
-    with open(test[1], "w") as file:
-        showBruteDialog(app,
-                        ground_image,
+while(True):
+    if test[0] == 1:
+        best_mean = testNextOptimum(app, ground_image, mask_image)
+        x, y, height, angle, fov = getCurrentCoordsAndFov(app)
+        getCurrentLevel(ground_image,
                         mask_image,
-                        brute_deviation_increment,
-                        brute_x_max,
-                        brute_y_max,
-                        brute_angle_max,
-                        brute_height_max,
-                        file)
-elif test[0] == 3:
-    best_mean = testNextOptimum(app, ground_image, mask_image)
-    x, y, height, angle, fov = getCurrentCoordsAndFov(app)
-    getCurrentLevel(ground_image,
-                    mask_image,
-                    show_image=True,
-                    x=x,
-                    y=y,
-                    height=height,
-                    angle=angle,
-                    fov=fov)
-    with open(test[1], "w") as file:
-        showBruteDialog(app,
-                        ground_image,
+                        show_image=True,
+                        x=x,
+                        y=y,
+                        height=height,
+                        angle=angle,
+                        fov=fov)
+    elif test[0] == 2:
+        with open(test[1], "w") as file:
+            showBruteDialog(app,
+                            ground_image,
+                            mask_image,
+                            brute_deviation_increment,
+                            brute_x_max,
+                            brute_y_max,
+                            brute_angle_max,
+                            brute_height_max,
+                            file)
+    elif test[0] == 3:
+        best_mean = testNextOptimum(app, ground_image, mask_image)
+        x, y, height, angle, fov = getCurrentCoordsAndFov(app)
+        getCurrentLevel(ground_image,
                         mask_image,
-                        brute_deviation_increment,
-                        brute_x_max,
-                        brute_y_max,
-                        brute_angle_max,
-                        brute_height_max,
-                        file)
+                        show_image=True,
+                        x=x,
+                        y=y,
+                        height=height,
+                        angle=angle,
+                        fov=fov)
+        with open(test[1], "w") as file:
+            showBruteDialog(app,
+                            ground_image,
+                            mask_image,
+                            brute_deviation_increment,
+                            brute_x_max,
+                            brute_y_max,
+                            brute_angle_max,
+                            brute_height_max,
+                            file)
+    elif test[0] == 4:
+        x, y, height, angle, fov = getCurrentCoordsAndFov(app)
+        getCurrentLevel(ground_image,
+                        mask_image,
+                        show_image=True,
+                        x=x,
+                        y=y,
+                        height=height,
+                        angle=angle,
+                        fov=fov)
+    test = showWhichTestDialog()
+
 """
 weekendtest parameter (4k Screen):
 
