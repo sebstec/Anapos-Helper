@@ -922,8 +922,9 @@ def grabAndCropSS():  #overlay_window_pos / overlay_window_size are global vars
 
 
 def makeFinalImage(ss, ground_image, mask_image):
-    ground_image.paste(ss, box=None, mask=mask_image)
-    return ground_image
+    final_image = ground_image.copy()
+    final_image.paste(ss, box=None, mask=mask_image)
+    return final_image
 
 
 def setUpHeightDiff(app, gray=False, title=app_title_regex):
@@ -1234,7 +1235,7 @@ def showDelayWindow(app):
     return ss_overlay, start_end_pixels
 
 
-def showWhichTestDialog():
+def showWhichTestDialog(app):
     window = tk.Tk()
     window.geometry(window_geometry)
     window.attributes("-topmost", "true")
@@ -1300,7 +1301,9 @@ def showWhichTestDialog():
               command=returnZero).pack(**ipadding,
                                        fill=tk.X)
 
+    window.update()
     window.mainloop()
+    app[app_title_regex].set_focus()
     return r
 
 
@@ -2009,9 +2012,10 @@ ground_image = images[0]
 mask_image = images[1]
 setUpHeightDiff(app)
 setUpManAdjust(app)
-test = showWhichTestDialog()
+
 
 while (True):
+    test = showWhichTestDialog(app)
     if test[0] == 1:
         best_mean = testNextOptimum(app, ground_image, mask_image)
         x, y, height, angle, fov = getCurrentCoordsAndFov(app)
@@ -2065,7 +2069,7 @@ while (True):
                         height=height,
                         angle=angle,
                         fov=fov)
-    test = showWhichTestDialog()
+#    test = showWhichTestDialog(app)
 """
 weekendtest parameter (4k Screen):
 
