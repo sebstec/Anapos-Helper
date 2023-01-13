@@ -254,6 +254,7 @@ def testInOneDirection(app,
     while (current_level != best_mean):
         time.sleep(0.01)
         current_level = getCurrentLevel(ground_image, mask_image)
+    root.destroy()
     return current_level
 
 
@@ -380,6 +381,7 @@ def getStartPos(app, result, ground_image, mask_image):
 
     result["starting_level"] = getCurrentLevel(ground_image, mask_image)
 
+    root.destroy()
     return result
 
 
@@ -1003,8 +1005,8 @@ def showMarkAreaDialog():
         text=
         "(Positionierung VOR dem Klick auf OK durchfuehren\nODER Bild laden, dann auf OK)",
         anchor=tk.W,
-        bg="white").pack(**ipadding,
-                         fill=tk.X)
+        bg="red").pack(**ipadding,
+                       fill=tk.X)
     tk.Label(window,
              textvariable=file_path_load).pack(**ipadding,
                                                fill=tk.X,
@@ -2008,16 +2010,15 @@ removeLines()
 zoom_value = setUpZoom(app, app_title_regex, manual_adjust_image_view)
 setUpManAdjust(app)
 images = setUpAreaToCompare(app, zoom_value)
-ground_image = images[0]
-mask_image = images[1]
+ground_image = images[0].copy()
+mask_image = images[1].copy()
 setUpHeightDiff(app)
 setUpManAdjust(app)
-
 
 while (True):
     test = showWhichTestDialog(app)
     if test[0] == 1:
-        best_mean = testNextOptimum(app, ground_image, mask_image)
+        testNextOptimum(app, ground_image, mask_image)
         x, y, height, angle, fov = getCurrentCoordsAndFov(app)
         getCurrentLevel(ground_image,
                         mask_image,
@@ -2039,7 +2040,7 @@ while (True):
                             brute_height_max,
                             file)
     elif test[0] == 3:
-        best_mean = testNextOptimum(app, ground_image, mask_image)
+        testNextOptimum(app, ground_image, mask_image)
         x, y, height, angle, fov = getCurrentCoordsAndFov(app)
         getCurrentLevel(ground_image,
                         mask_image,
@@ -2069,7 +2070,6 @@ while (True):
                         height=height,
                         angle=angle,
                         fov=fov)
-#    test = showWhichTestDialog(app)
 """
 weekendtest parameter (4k Screen):
 
