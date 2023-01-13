@@ -185,7 +185,7 @@ def testInOneDirection(app,
         )
 
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     root = tk.Tk()
     root.withdraw()
@@ -221,7 +221,7 @@ def testInOneDirection(app,
                 height_shift_input].double_click_input()
 
         pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
+       #time.sleep(0.1)  #TODO: improve
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
         while (current_level == best_mean):
@@ -248,7 +248,7 @@ def testInOneDirection(app,
         )
 
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.write(current_deviation_string)
     pyautogui.press('enter')
     while (current_level != best_mean):
@@ -310,7 +310,7 @@ def testInOneDirectionBrute(app,
         )
         height = current_deviation
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.write(current_deviation_string)
     pyautogui.press('enter')
     while (current_level == current_level_temp):
@@ -348,7 +348,7 @@ def getStartPos(app, result, ground_image, mask_image):
     app[manual_adjust_dialog_title][
         x_direction_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -357,7 +357,7 @@ def getStartPos(app, result, ground_image, mask_image):
     app[manual_adjust_dialog_title][
         y_direction_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -365,7 +365,7 @@ def getStartPos(app, result, ground_image, mask_image):
 
     app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -373,7 +373,7 @@ def getStartPos(app, result, ground_image, mask_image):
 
     app[manual_adjust_dialog_title][height_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     current_deviation_string = root.clipboard_get()
     current_deviation = float(current_deviation_string.replace(",", "."))
@@ -400,7 +400,7 @@ def moveToStartPos(app,
         current_deviation = round(current_deviation, 2)
         current_deviation_string = str(current_deviation).replace(".", ",")
         pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
+        #time.sleep(0.1)  #TODO: improve
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
 
@@ -411,7 +411,7 @@ def moveToStartPos(app,
         current_deviation = round(current_deviation, 2)
         current_deviation_string = str(current_deviation).replace(".", ",")
         pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
+        #time.sleep(0.1)  #TODO: improve
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
 
@@ -421,7 +421,7 @@ def moveToStartPos(app,
         current_deviation = round(current_deviation, 2)
         current_deviation_string = str(current_deviation).replace(".", ",")
         pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
+        #time.sleep(0.1)  #TODO: improve
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
 
@@ -432,7 +432,7 @@ def moveToStartPos(app,
         current_deviation = round(current_deviation, 2)
         current_deviation_string = str(current_deviation).replace(".", ",")
         pyautogui.hotkey('ctrl', 'a')
-        time.sleep(0.1)  #TODO: improve
+        #time.sleep(0.1)  #TODO: improve
         pyautogui.write(current_deviation_string)
         pyautogui.press('enter')
 
@@ -1976,26 +1976,26 @@ def getCurrentCoordsAndFov(app):
     app[manual_adjust_dialog_title][
         x_direction_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     x = root.clipboard_get()
 
     app[manual_adjust_dialog_title][
         y_direction_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     y = root.clipboard_get()
 
     app[manual_adjust_dialog_title][height_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     height = root.clipboard_get()
 
     app[manual_adjust_dialog_title][angle_shift_input].double_click_input()
     pyautogui.hotkey('ctrl', 'a')
-    time.sleep(0.1)  #TODO: improve
+    #time.sleep(0.1)  #TODO: improve
     pyautogui.hotkey('ctrl', 'c')
     angle = root.clipboard_get()
 
