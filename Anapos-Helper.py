@@ -1103,19 +1103,33 @@ def setUpZoom(app, title, image_view):
     return selection
 
 
+def checkColor(pixel_color):
+    if pixel_color[0] != pixel_color[1] or pixel_color[1] != pixel_color[
+            2] or pixel_color[0] > 80 or pixel_color[1] > 80 or pixel_color[
+                2] > 80:
+        return False
+    else:
+        return True
+
+
 def controlZoomvalue(app, title, image_view):
     app = setUpAppConnection(title)
     control_image = app[title][image_view].capture_as_image()
     control_pixel = (int(control_image.size[0] * 0.5),
-                     int(control_image.size[1] * 0.05))
+                     int(control_image.size[1] * 0.005))
     control_pixel_color = control_image.getpixel(control_pixel)
-    if control_pixel_color[0] != control_pixel_color[1] or control_pixel_color[
-            1] != control_pixel_color[2] or control_pixel_color[
-                0] > 80 or control_pixel_color[1] > 80 or control_pixel_color[
-                    2] > 80:
+    if not checkColor(control_pixel_color):
         return False
-    else:
-        return True
+    for i in range(0, 500, 100):
+        padd = (control_pixel[0] + i, control_pixel[1])
+        psub = (control_pixel[0] - i, control_pixel[1])
+        padd_pixel_color = control_image.getpixel(padd)
+        psub_pixel_color = control_image.getpixel(psub)
+        print(control_pixel_color, padd_pixel_color, psub_pixel_color)
+        if padd_pixel_color != control_pixel_color or psub_pixel_color != control_pixel_color:
+            return False
+
+    return True
 
 
 def showStartingWindow():
@@ -1168,12 +1182,14 @@ def showStartingWindow():
              anchor=tk.W,
              bg="white").pack(**ipadding,
                               fill=tk.X)
-    tk.Label(window,
-             text="keine Maus-/Tastatureingabe ohne Aufforderung!",
-             anchor=tk.W,
-             bg="red").pack(**ipadding,
-                            fill=tk.X,
-                            expand=True)
+    tk.Label(
+        window,
+        text=
+        "während des gesamten Ablaufs gilt:\nkeine Maus-/Tastatureingabe ohne Aufforderung!",
+        anchor=tk.W,
+        bg="red").pack(**ipadding,
+                       fill=tk.X,
+                       expand=True)
     tk.Button(window, text='OK', command=end).pack(**ipadding, fill=tk.X)
     window.mainloop()
     return
